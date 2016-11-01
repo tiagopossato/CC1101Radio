@@ -392,7 +392,7 @@ enum RFSTATE {
 #define _state_begin 10 // start sending mesg, mesg will be resend undtil succcess or timeout
 #define _state_announce 15 // announcement of new data - receiver must call state_request to get the data
 #define _state_request 20 // request of data
-#define _state_wait 25 //
+//#define _state_wait 25 //
 #define _state_dataChar 30 // client: send char* data
 #define _state_dataBin 35 // client: send uint8_* data
 #define _state_debug 40 // debug data
@@ -501,31 +501,31 @@ class CC1101Radio	{
 		boolean crc_ok; //CRC OK flag
 		uint8_t rssi; //Received Strength Signal Indication
 		uint8_t lqi; //* Link Quality Index
-		};
+	};
 
 
 	
 
 		
-		//variables
-		//----------------------------
-		
-		
-		uint8_t SPI_SS;
-		uint8_t GDO0pin;
+	//variables
+	//----------------------------
+	
+	
+	uint8_t SPI_SS;
+	uint8_t GDO0pin;
 
-		cc1101Device deviceData;
+	cc1101Device deviceData;
 
-		byte rfState;
+	byte rfState;
 
-		byte paTableByte;
-		bool packetAvailable = false; // true if cc1101 has received a packet
+	byte paTableByte;
+	bool packetAvailable = false; // true if cc1101 has received a packet
 
-		messageInfo sendMsg, recvMsg;
+	messageInfo sendMsg, recvMsg;
 
-        // ----------------------
-        // List of device addresses we have received packets from
-        // ----------------------
+	// ----------------------
+	// List of device addresses we have received packets from
+	// ----------------------
 
     #define maxDevices 12
     int16_t deviceList[maxDevices] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
