@@ -276,9 +276,9 @@ void CC1101Radio::begin(){
 	reset();
 
 	setDeviceData();
-
+#if defined(DEBUG)
 	printSetup();
-
+#endif	
 	pinMode(GDO0pin,INPUT); // set GDO interrupt pin as inoput so we get get  interrupts
 
 	writeReg(0x02,0x06); // gdo0 output pin configuration
@@ -653,7 +653,7 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 			val = readConfigReg(CC1101_RXFIFO);
 			pkt->lqi = val & 0x7F;
 			pkt->crc_ok = bitRead(val, 7);
-			updateDeviceList(pkt);
+			//updateDeviceList(pkt);
 		}
 	}
 	else
@@ -722,7 +722,7 @@ bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 // ----------------------
 //  Keep track of devices
 // ----------------------
-
+/*
 void CC1101Radio::updateDeviceList(CC1101Radio::CCPACKET *pkt) {
 	
 	int firstEmptyIdx=-1;
@@ -742,3 +742,4 @@ void CC1101Radio::updateDeviceList(CC1101Radio::CCPACKET *pkt) {
 	}
 
 }
+*/

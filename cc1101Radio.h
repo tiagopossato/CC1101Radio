@@ -115,6 +115,8 @@ MOSI    => A5
 #endif // Arduino platform
 
 
+#define DEBUG
+
 
 /*-----------------
 CC1101 definitions
@@ -526,11 +528,12 @@ class CC1101Radio	{
 	// ----------------------
 	// List of device addresses we have received packets from
 	// ----------------------
-
+	
+	/*
     #define maxDevices 12
     int16_t deviceList[maxDevices] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
     bool newDeviceAdded = false;
-
+*/
 
 		// Functions
 		//----------------------------
@@ -568,7 +571,7 @@ class CC1101Radio	{
 		byte receiveData(CCPACKET *packet);
 		bool detectMessageInfo(messageInfo *info);
 		
-		void updateDeviceList(CCPACKET *packet);
+		//void updateDeviceList(CCPACKET *packet);
 		
 		};
 
