@@ -334,6 +334,14 @@ void CC1101Radio::printSetup(){
 
 void CC1101Radio::printCCPACKETdata(CCPACKET *pkt) {
 	
+	Serial.print(" lqi[");
+	Serial.print(pkt->lqi);
+	Serial.print("]");
+	
+	Serial.print(" rssi[");
+	Serial.print(pkt->rssi);
+	Serial.println("]");
+	
 	Serial.print(" data[");
 	Serial.print(pkt->length);
 	Serial.print("]=");
@@ -602,7 +610,7 @@ boolean CC1101Radio::sendMessage(uint8_t toDevice, uint8_t state, uint16_t trans
 //  Wait for a confirmation after sending
 // ----------------------
 
-bool CC1101Radio::waitResponse(messageInfo *msg, messageInfo *responceMsg, uint8_t waitFlag, uint16_t timeoutMs) {
+bool CC1101Radio::waitResponse(/*messageInfo *msg, */messageInfo *responceMsg, /*uint8_t waitFlag,*/ uint16_t timeoutMs) {
 	uint32_t startMs = millis();
 	while(millis()<startMs + timeoutMs) {
 		
@@ -633,7 +641,8 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 {
 	byte val;
 	byte rxBytes = readStatusReg(CC1101_RXBYTES);
-
+	Serial.println("receiveData: ");
+	Serial.println(rxBytes);
 	// Any byte waiting to be read and no overflow?
 	if (rxBytes & 0x7F && !(rxBytes & 0x80))
 	{
@@ -641,6 +650,10 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 		// Read data length
 		pkt->length = readConfigReg(CC1101_RXFIFO);
 		// If packet is too long
+		
+		Serial.print("Tam Recebido: ");
+		Serial.println(pkt->length);
+		
 		if (pkt->length > CC1101_DATA_LEN)
 		pkt->length = 0;   // Discard packet
 		else
@@ -673,29 +686,52 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 	packetAvailable = false;
 	CCPACKET pkt;
+	
 	if(receiveData(&pkt) > 0) {
+
+		#if defined(DEBUG)
+	Serial.println("++++++++++++++++++++++++++++++++++++");
+	printCCPACKETdata(&pkt);
+	Serial.println("++++++++++++++++++++++++++++++++++++");
+	#endif
+		
+		#if defined(DEBUG)
+		if(!pkt.crc_ok){
+			Serial.println("Erro no CRC");
+		}		
+		#endif
 		
 		if(pkt.crc_ok && pkt.length > 0) {
 			info->toDevice = pkt.data[0];
 			info->fromDevice = pkt.data[1];
 			info->messageType = pkt.data[2];
 			info->messageId = pkt.data[3] + pkt.data[4]*256;
-			info->parm = pkt.data[5];
-
-			info->messageType = pkt.data[2];
+			info->parm = pkt.data[5];		
 
 			if(pkt.length>messageInfoHeaderLength) {
+				#if defined(DEBUG)
+				Serial.println("\t\tMensagem com dados recebida");
+				#endif
 				info->dataLength=pkt.length-messageInfoHeaderLength;
 				memcpy(info->data, pkt.data+messageInfoHeaderLength, info->dataLength);
 			}
 			else {
 				info->dataLength=0;
+				#if defined(DEBUG)
+				Serial.println("\t\tMensagem vazia recebida");
+				#endif
 			}
 		}
 		
 		
 		if(info->messageType == _state_confirmed) {
+				#if defined(DEBUG)
+				Serial.println("\t\tinfo->messageType == _state_confirmed");
+				#endif
 			if((sendMsg.messageId == info->messageId) && (sendMsg.toDevice == info->fromDevice)) {
+				#if defined(DEBUG)
+				Serial.println("\t\tsendMsg.messageId == info->messageId");
+				#endif
 				sendMsg.messageType = _state_confirmed;
 				
 			}
@@ -703,18 +739,27 @@ bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 		}
 		
 		// send confirmation ?
-		if(info->parm & _parm_request_confirmation) {
+		if(info->parm & _parm_request_confirmation) {			
 			// use another sendMessage variant, if you need to add data to the confirmation message
 			// instead of '0' some meaningfull info could be send in parm attribute
 			sendMessage(info->fromDevice, _state_confirmed, info->messageId, 0); //instead of '0' some meaningfull info could be send
+			#if defined(DEBUG)
 			Serial.print("\t\tSend confirmation to device#");
 			Serial.print(info->fromDevice);
 			Serial.print(" for msg#");
-			Serial.println(info->messageType);
+			Serial.println(info->messageId);
+			#endif	
+
 		}
 
 		return true;
 	}
+	
+		#if defined(DEBUG)
+	Serial.println("++++++++++++++++COM PROBLEMA++++++++++++++++++++");
+	printCCPACKETdata(&pkt);
+	Serial.println("++++++++++++++++++++++++++++++++++++");
+	#endif
 	return false;
 }
 

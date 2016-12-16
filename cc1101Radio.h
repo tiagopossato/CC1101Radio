@@ -114,9 +114,7 @@ MOSI    => A5
 
 #endif // Arduino platform
 
-
 #define DEBUG
-
 
 /*-----------------
 CC1101 definitions
@@ -501,7 +499,7 @@ class CC1101Radio	{
 		uint8_t length; // data length in number of bytes
 		uint8_t data[CC1101_DATA_LEN]; // data as an array of bytes
 		boolean crc_ok; //CRC OK flag
-		uint8_t rssi; //Received Strength Signal Indication
+		uint8_t rssi; // Received Strength Signal Indication
 		uint8_t lqi; //* Link Quality Index
 	};
 
@@ -566,7 +564,7 @@ class CC1101Radio	{
 		boolean sendMessage(uint8_t toDevice, uint8_t state, uint16_t transNum, uint8_t parm);
 		boolean sendMessage(uint8_t toDevice, uint8_t state, uint16_t transNum, uint8_t parm, uint8_t *data, uint8_t dataLength );
 		boolean sendMessage(messageInfo *msg);
-		boolean waitResponse(messageInfo *msg, messageInfo *responceMsg, uint8_t waitFlag, uint16_t timeoutMs);
+		boolean waitResponse(/*messageInfo *msg, */messageInfo *responceMsg, /*uint8_t waitFlag,*/ uint16_t timeoutMs);
 		
 		byte receiveData(CCPACKET *packet);
 		bool detectMessageInfo(messageInfo *info);
