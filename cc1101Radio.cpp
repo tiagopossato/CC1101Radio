@@ -292,7 +292,6 @@ void CC1101Radio::begin(){
 // ----------------------
 
 void CC1101Radio::printSetup(){
-	
 	delay(100);
 	hwsSerial.print("PARTNUM "); //cc1101=0
 	hwsSerial.print(readReg(CC1101_PARTNUM, CC1101_STATUS_REGISTER));
@@ -323,8 +322,7 @@ void CC1101Radio::printSetup(){
 	hwsSerial.print(SPI_SS);
 	hwsSerial.print(", clock divider=");
 	hwsSerial.println(spiDivide);
-	hwsSerial.println("\r\n");
-
+	hwsSerial.println("\r\n");	
 }
 
 
@@ -641,8 +639,11 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 {
 	byte val;
 	byte rxBytes = readStatusReg(CC1101_RXBYTES);
+	#if defined(DEBUG)
 	Serial.println("receiveData: ");
-	Serial.println(rxBytes);
+	Serial.println(rxBytes);			
+	#endif
+
 	// Any byte waiting to be read and no overflow?
 	if (rxBytes & 0x7F && !(rxBytes & 0x80))
 	{
@@ -650,9 +651,11 @@ byte CC1101Radio::receiveData(CCPACKET * pkt)
 		// Read data length
 		pkt->length = readConfigReg(CC1101_RXFIFO);
 		// If packet is too long
-		
+		#if defined(DEBUG)
 		Serial.print("Tam Recebido: ");
-		Serial.println(pkt->length);
+		Serial.println(pkt->length);			
+		#endif
+
 		
 		if (pkt->length > CC1101_DATA_LEN)
 		pkt->length = 0;   // Discard packet
@@ -689,7 +692,7 @@ bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 	
 	if(receiveData(&pkt) > 0) {
 
-		#if defined(DEBUG)
+	#if defined(DEBUG)
 	Serial.println("++++++++++++++++++++++++++++++++++++");
 	printCCPACKETdata(&pkt);
 	Serial.println("++++++++++++++++++++++++++++++++++++");
@@ -735,7 +738,12 @@ bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 				sendMsg.messageType = _state_confirmed;
 				
 			}
-			else Serial.print("Confirmation Error!");
+			else {
+				#if defined(DEBUG)
+				Serial.print("Confirmation Error!");
+				#endif
+			}
+				
 		}
 		
 		// send confirmation ?
@@ -755,7 +763,7 @@ bool CC1101Radio::detectMessageInfo(messageInfo *info) {
 		return true;
 	}
 	
-		#if defined(DEBUG)
+	#if defined(DEBUG)
 	Serial.println("++++++++++++++++COM PROBLEMA++++++++++++++++++++");
 	printCCPACKETdata(&pkt);
 	Serial.println("++++++++++++++++++++++++++++++++++++");
